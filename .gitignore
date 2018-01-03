@@ -7,13 +7,13 @@ out
 /.settings/
 /.project
 
-# Ignore
-/src/com/zhenglinj/java/samples/reflect
+# # Ignore
+# /src/com/zhenglinj/java/samples/reflect
 
-# Ignore java8
-/src/com/winterbe/java8/samples/
-/res
+# # Ignore java8
+# /src/com/winterbe/java8/samples/
+# /res
 
-# Ignore misc
-/LICENSE
-/README.md
+# # Ignore misc
+# /LICENSE
+# /README.md

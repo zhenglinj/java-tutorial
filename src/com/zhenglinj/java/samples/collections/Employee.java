@@ -2,7 +2,7 @@ package com.zhenglinj.java.samples.collections;
 
 import java.util.Comparator;
 
-class Employee implements Comparable<Employee> {
+class Employee implements Comparable<Employee> {//
 
 	private String name;
 	private int salary;
