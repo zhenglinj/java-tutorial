@@ -6,6 +6,7 @@ out
 /bin/
 /.settings/
 /.project
+/.classpath
 
 # # Ignore
 # /src/com/zhenglinj/java/samples/reflect
@@ -17,3 +18,4 @@ out
 # # Ignore misc
 # /LICENSE
 # /README.md
+/target/
