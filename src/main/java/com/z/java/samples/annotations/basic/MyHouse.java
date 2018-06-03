@@ -1,4 +1,4 @@
-package com.z.java.samples.annotations;
+package com.z.java.samples.annotations.basic;
 
 public class MyHouse implements House {
 	@SuppressWarnings("deprecation")
