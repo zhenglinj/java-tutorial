@@ -11,6 +11,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static java.util.Arrays.spliterator;
@@ -20,7 +21,8 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class YieldTest {
 
-    private SideEffects ignoreSideEffects = sideEffect -> {};
+    private SideEffects ignoreSideEffects = sideEffect -> {
+    };
 
     public static Yielderable<String> fooBar(SideEffects sideEffects) {
         return yield -> {
@@ -42,25 +44,27 @@ public class YieldTest {
         };
     }
 
-    @Test public void should_have_expected_values() {
+    @Test
+    public void should_have_expected_values() {
         ArrayList<String> results = new ArrayList<>();
 
         for (String result : fooBar(ignoreSideEffects)) {
             results.add(result);
         }
 
-        assertEquals(asList("foo","bar"), results);
+        assertEquals(asList("foo", "bar"), results);
     }
 
 
-    @Test public void should_perform_side_effects_in_expected_order() {
+    @Test
+    public void should_perform_side_effects_in_expected_order() {
         SideEffects sideEffects = mock(SideEffects.class);
 
         Iterable<String> foos = fooBar(sideEffects);
         verifyZeroInteractions(sideEffects);
 
         int sideEffectNumber = 1;
-        for  (String foo : foos) {
+        for (String foo : foos) {
             verify(sideEffects).sideEffect(sideEffectNumber++);
             verifyNoMoreInteractions(sideEffects);
         }
@@ -69,23 +73,25 @@ public class YieldTest {
 
     }
 
-    @Test public void should_break_out() {
+    @Test
+    public void should_break_out() {
         ArrayList<Integer> results = new ArrayList<>();
         for (Integer number : oneToFive(ignoreSideEffects)) {
             results.add(number);
         }
-        assertEquals(asList(1,2,3,4,5), results);
+        assertEquals(asList(1, 2, 3, 4, 5), results);
     }
 
 
-    @Test public void should_perform_side_effects_in_expected_order_with_loop() {
+    @Test
+    public void should_perform_side_effects_in_expected_order_with_loop() {
         SideEffects sideEffects = mock(SideEffects.class);
 
         Iterable<Integer> numbers = oneToFive(sideEffects);
         verifyZeroInteractions(sideEffects);
 
         int sideEffectNumber = 1;
-        for  (Integer i : numbers) {
+        for (Integer i : numbers) {
             verify(sideEffects).sideEffect(sideEffectNumber++);
             verifyNoMoreInteractions(sideEffects);
         }
@@ -93,21 +99,24 @@ public class YieldTest {
         verifyNoMoreInteractions(sideEffects);
     }
 
-    @Test public void iterator_should_not_require_call_to_hasNext() {
+    @Test
+    public void iterator_should_not_require_call_to_hasNext() {
         Iterable<String> strings = fooBar(ignoreSideEffects);
         Iterator<String> iterator = strings.iterator();
         assertEquals("foo", iterator.next());
         assertEquals("bar", iterator.next());
     }
 
-    @Test public void iterable_should_not_be_stateful() {
+    @Test
+    public void iterable_should_not_be_stateful() {
         Iterable<String> strings = fooBar(ignoreSideEffects);
         assertEquals("foo", strings.iterator().next());
         assertEquals("foo", strings.iterator().next());
     }
 
 
-    @Test public void autoclose_infinite_iterator() {
+    @Test
+    public void autoclose_infinite_iterator() {
         try (ClosableIterator<Integer> positiveIntegers = positiveIntegers().iterator()) {
             assertEquals(Integer.valueOf(1), positiveIntegers.next());
             assertEquals(Integer.valueOf(2), positiveIntegers.next());
@@ -126,4 +135,8 @@ public class YieldTest {
         void sideEffect(int sequence);
     }
 
+    @Test
+    public void testStream() {
+        Stream.iterate(1, x -> x + 1).forEach(System.out::println);
+    }
 }

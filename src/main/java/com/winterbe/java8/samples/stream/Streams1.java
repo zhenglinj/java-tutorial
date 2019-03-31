@@ -21,6 +21,26 @@ public class Streams1 {
         stringCollection.add("bbb2");
         stringCollection.add("ddd1");
 
+        // comparing yield return. it is same as yield return behavior without sorted()
+        stringCollection
+                .stream()
+                .map(s -> {
+                    System.out.print(s);
+                    return s;
+                })
+                .sorted()
+                .forEach(System.out::print);
+        System.out.println();
+        //ddd2aaa2bbb1aaa1bbb3cccbbb2ddd1aaa1aaa2bbb1bbb2bbb3cccddd1ddd2
+        stringCollection
+                .stream()
+                .map(s -> {
+                    System.out.print(s);
+                    return s;
+                })
+                .forEach(System.out::print);
+        System.out.println();
+        //ddd2ddd2aaa2aaa2bbb1bbb1aaa1aaa1bbb3bbb3ccccccbbb2bbb2ddd1ddd1
 
         // filtering
 
