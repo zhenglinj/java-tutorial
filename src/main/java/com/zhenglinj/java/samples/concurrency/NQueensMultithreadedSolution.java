@@ -8,14 +8,15 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * the single-thread and multi-thread version solutions for N Queens problem
- *
+ * <p>
  * output:
- *
+ * <p>
  * Single-thread solution total used time(ms): 13198
  * Multi-thread solution total used time(ms): 6971
  */
 public class NQueensMultithreadedSolution {
-    private static ExecutorService pool = Executors.newFixedThreadPool(4);
+    private final static int N = 4;
+    private static ExecutorService pool = Executors.newFixedThreadPool(N);
 
     public static void main(String[] args) {
         NQueensMultithreadedSolution solution = new NQueensMultithreadedSolution();
@@ -23,15 +24,17 @@ public class NQueensMultithreadedSolution {
     }
 
     private void solve() {
-        int gridSize = 14;
+        int gridSize = 16;
         List<String> result = new ArrayList<String>();
 
+        /**
+         * for single-thread version
+         */
         try {
-            NQueensSolver solver = new NQueensSolver(gridSize);
-
             long start = System.currentTimeMillis();
 
-            solver.solve0();
+            NQueens nQueens = new NQueens(gridSize);
+            nQueens.placeAllQueens();
 
             long end = System.currentTimeMillis();
             result.add("Single-thread solution total used time(ms): " + (end - start));
@@ -39,15 +42,26 @@ public class NQueensMultithreadedSolution {
             ex.printStackTrace();
         }
 
+        /**
+         * for multi-thread version
+         */
         try {
-            NQueensSolver[] jobs = new NQueensSolver[gridSize];
-            for (int i = 0; i < gridSize; i++) {
-                jobs[i] = new NQueensSolver(gridSize, i);
-            }
             long start = System.currentTimeMillis();
 
+            NQueens[] nQueenses = new NQueens[gridSize];
             for (int i = 0; i < gridSize; i++) {
-                pool.execute(jobs[i]);
+                nQueenses[i] = new NQueens(gridSize);
+            }
+
+            for (int i = 0; i < gridSize; i++) {
+                NQueens nQueens = nQueenses[i];
+                nQueens.setFirstRowQueenIdx(i);
+                pool.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        nQueens.placeAllQueens();
+                    }
+                });
             }
 
             pool.shutdown();
@@ -67,11 +81,12 @@ public class NQueensMultithreadedSolution {
     /**
      * the N Queens solver to calculate result
      */
-    private static class NQueensSolver implements Runnable {
+    private static class NQueens {
         private int gridSize;
         private int firstRowQueenIdx; // used for multi-thread solution
+        private int[][] board;
 
-        public NQueensSolver(int gridSize, int firstRowQueenIdx) {
+        public NQueens(int gridSize, int firstRowQueenIdx) {
             //If Grid is 1*1 or 2*2 or 3*3 then solution is not possible as,
             //In 1*1 or 2*2 grid, Queen placed in 1st row at any position will attack queen placed at all the positions in row 2.
             //In 3*3 grid, Queen placed in 1st row and 2nd row for all combinations position will attack queen placed at all the positions in row 3.
@@ -83,9 +98,11 @@ public class NQueensMultithreadedSolution {
             }
             this.gridSize = gridSize;
             this.firstRowQueenIdx = firstRowQueenIdx;
+            this.board = new int[gridSize][gridSize];
+            this.board[0][firstRowQueenIdx] = 1;
         }
 
-        public NQueensSolver(int gridSize) {
+        public NQueens(int gridSize) {
             //If Grid is 1*1 or 2*2 or 3*3 then solution is not possible as,
             //In 1*1 or 2*2 grid, Queen placed in 1st row at any position will attack queen placed at all the positions in row 2.
             //In 3*3 grid, Queen placed in 1st row and 2nd row for all combinations position will attack queen placed at all the positions in row 3.
@@ -93,29 +110,30 @@ public class NQueensMultithreadedSolution {
                 throw new IllegalArgumentException("gridSize should >= 4");
             }
             this.gridSize = gridSize;
+            this.firstRowQueenIdx = 0;
+            this.board = new int[gridSize][gridSize];
         }
 
-        /**
-         * for multi-thread version
-         */
-        @Override
-        public void run() {
-            // use for multi-thread version
-            int[][] board = new int[gridSize][gridSize];
-            board[0][firstRowQueenIdx] = 1;
-            placeAllQueens(board, 1);
+        public boolean placeAllQueens() {
+            if (this.firstRowQueenIdx > 0 && this.firstRowQueenIdx < this.gridSize) {
+                return placeAllQueens(this.board, 1);
+            } else {
+                return placeAllQueens(this.board, 0);
+            }
         }
 
-        /**
-         * for single-thread version
-         */
-        public void solve0() {
-            int[][] board = new int[gridSize][gridSize];
-            placeAllQueens(board, 0);
+        public void setFirstRowQueenIdx(int idx) {
+            if (gridSize < idx) {
+                throw new IllegalArgumentException("gridSize should >= firstRowQueenIdx");
+            }
+            this.board[0][firstRowQueenIdx] = 0;
+            this.firstRowQueenIdx = idx;
+            this.board[0][idx] = 1;
         }
 
         /**
          * place all the queens starting from row
+         *
          * @param board
          * @param row
          * @return
@@ -132,15 +150,10 @@ public class NQueensMultithreadedSolution {
                     board[row][j] = 1;
                     isAllQueensPlaced = placeAllQueens(board, row + 1);
                 }
-                if (isAllQueensPlaced) {
-                    if (row == board.length - 1) {
-                        //printBoard(board);
-                        board[row][j] = 0;
-                        break;
-                    } else {
-                        board[row][j] = 0;
-                        continue;
-                    }
+                if (isAllQueensPlaced && row == board.length - 1) {
+                    //printBoard(board);
+                    board[row][j] = 0;
+                    break;
                 } else {
                     board[row][j] = 0;
                 }
@@ -151,6 +164,7 @@ public class NQueensMultithreadedSolution {
 
         /**
          * check if the new queen in row/col of board safe or not
+         *
          * @param board
          * @param row
          * @param col
