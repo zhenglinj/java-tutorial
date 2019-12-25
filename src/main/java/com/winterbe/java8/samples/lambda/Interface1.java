@@ -29,6 +29,9 @@ public class Interface1 {
         formula1.sqrt(-23);          // 0.0
         Formula.positive(-4);        // 0.0
 
+        Formula f = (a) -> Math.sqrt(a);
+
+
 //        Formula formula2 = (a) -> sqrt( a * 100);
     }
 
