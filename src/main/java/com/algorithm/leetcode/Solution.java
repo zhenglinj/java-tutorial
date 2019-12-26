@@ -1,4 +1,4 @@
-package com.leetcode;
+package com.algorithm.leetcode;
 
 public class Solution {
 
@@ -100,7 +100,7 @@ public class Solution {
         return result;
     }
 
-    public boolean Find(int target, int[][] array) {
+    public boolean find(int target, int[][] array) {
         int rl = 0, rr = 0;
         for (int rf = 0, re = array.length - 1; rf < re; ) {
             rl = (rf + re) / 2;
